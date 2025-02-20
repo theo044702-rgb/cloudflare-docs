@@ -2,39 +2,51 @@
 import { getChangelogs, type GetChangelogsOptions } from "~/util/changelog";
 import { reference } from "astro:content";
 import { z } from "astro:schema";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
+import { slug } from "github-slugger";
+import { LinkButton } from "@astrojs/starlight/components";
 
-const props = z.object({
-	products: z.array(reference("products")),
-}).or(z.object({
-	area: z.string()
-}));
+const props = z
+	.object({
+		product: reference("products"),
+	})
+	.or(
+		z.object({
+			area: z.string(),
+		}),
+	);
 
 const input = await props.parseAsync(Astro.props);
 
 let filter: GetChangelogsOptions["filter"];
+let rss: string;
 
-if ("products" in input) {
+if ("product" in input) {
+	rss = `/changelog/rss/${input.product}.xml`;
+
 	filter = (e) => {
-		return e.data.products.some((x) => input.products.some((y) => x.id === y.id))
-	}
+		return e.data.products.some(({ id }) => id === input.product.id);
+	};
 } else {
+	rss = `/changelog/rss/${slug(input.area)}.xml`;
+
 	const products = await getCollection("products", (e) => {
 		return e.data.product.group === input.area;
 	});
 
 	filter = (e) => {
-		return e.data.products.some((x) => products.some((y) => x.id === y.id))
-	}
+		return e.data.products.some((x) => products.some((y) => x.id === y.id));
+	};
 }
 
 const changelogs = await getChangelogs({ filter });
 ---
 
+<LinkButton href={rss} target="_blank">Subscribe to RSS</LinkButton>
+
 {
-	changelogs.map((entry) => (
-		<h3>{entry.data.date.toISOString().slice(0, 10)}</h3>
-		<h4>{entry.data.description}</h4>
-		<p>For more information, refer to the <a href={`/changelog/${entry.id}`}>dedicated changelog post</a>.</p>
-	))
+	changelogs.map(async (entry) => {
+		const { Content } = await render(entry);
+		return <Content />;
+	})
 }
