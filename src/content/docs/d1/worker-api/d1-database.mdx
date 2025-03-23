@@ -243,9 +243,9 @@ return new Response(dump, {
 
 - None.
 
-### `withSession`
+### `withSession()`
 
-Starts a D1 Session which maintains sequential consistency among queries executed on the returned session object.
+Starts a D1 Session which maintains sequential consistency among queries executed on the returned `D1DatabaseSession` object.
 
 ```ts
 const session = env.DB.withSession("<parameter>");
@@ -261,10 +261,10 @@ const session = env.DB.withSession("<parameter>");
 - <code>first-unconstrained</code>: <Type text="String"/><MetaInfo text="Optional"/>
   - Directs the first query in the Session (whether read or write) to any database instance. Use this option if you do not need to start the Session with the most up-to-date data, and wish to prioritize minimizing query latency from the very start of the Session.
   - Subsequent queries in the Session have sequential consistency.
-  - This is the default behavior when no parameters are provided.
+  - This is the default behavior when no parameter is provided.
 
 - <code>bookmark</code>: <Type text="String"/><MetaInfo text="Optional"/>
-  - A [`bookmark`](/d1/reference/time-travel/#bookmarks) from an existing D1 Session. This allows you to continue the existing Session using the `bookmark` as a reference point.
+  - A [`bookmark`](/d1/reference/time-travel/#bookmarks) from a previous D1 Session. This allows you to start a new Session from at least the provided `bookmark`.
   - Subsequent queries in the Session have sequential consistency.
 
 #### Return values
@@ -276,14 +276,17 @@ const session = env.DB.withSession("<parameter>");
 
 You can return the last encountered `bookmark` for a given Session using [`session.getBookmark()`](/d1/worker-api/d1-database/#getbookmark).
 
-## Session methods
+## `D1DatabaseSession` methods
 
 ### `getBookmark`
 
 Retrieves the latest `bookmark` from the D1 Session.
 
 ```ts
-const session = db.withSession("first-primary");
+const session = env.DB.withSession("first-primary");
+const result = await session
+	.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
+	.run()
 return { bookmark } = session.getBookmark();
 ```
 
@@ -294,4 +297,5 @@ return { bookmark } = session.getBookmark();
 #### Return values
 
 - <code>bookmark</code>: <Type text="String | null"/>
-  - A [`bookmark`](/d1/reference/time-travel/#bookmarks) which identifies the latest version of the database seen by all queries executed within the Session.
+  - A [`bookmark`](/d1/reference/time-travel/#bookmarks) which identifies the latest version of the database seen by the last query executed within the Session.
+  - Returns `null` if no query is executed within a Session.

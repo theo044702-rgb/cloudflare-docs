@@ -19,3 +19,4 @@ entries:
   - term: bookmark
     general_definition: |-
       a bookmark represents the state of a database at a specific point in time.
+        - Bookmarks are lexicographically sortable. Sorting orders a list of bookmarks from oldest-to-newest.

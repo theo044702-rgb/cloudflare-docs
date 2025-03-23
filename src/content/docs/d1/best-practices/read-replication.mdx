@@ -8,15 +8,20 @@ sidebar:
 
 import { GlossaryTooltip, Details, GitHubCode, APIRequest, Tabs, TabItem, TypeScriptExample } from "~/components"
 
-D1 read replication scales read throughput and lowers latency for read queries by adding almost up-to-date, read-only database copies (read replicas) across global regions closer to clients.
+D1 read replication can lower latency for read queries and scale read throughput by adding read-only database copies, called read replicas, across global regions closer to clients.
 
-You can use D1 read replication by using D1 Sessions API. A Session encapsulates all the queries from one logical session for your application. For example, a Session may correspond to all queries coming from a particular web browser session.
-
-By using Sessions API for read replication, all of your queries from a single Session read from a database instance which is as up-to-date as your query needs it to be. This ensures that the version of the database you are reading from is logically consistent with your queries when using read replicas.
+Your application uses read replicas with D1 [Sessions API](/d1/worker-api/d1-database/#withsession). A Session encapsulates all the queries from one logical session for your application. For example, a Session may correspond to all queries coming from a particular web browser session. All queries within a Session read from a database instance which is as up-to-date as your query needs it to be. Sessions API ensures [sequential consistency](/d1/best-practices/read-replication/#replica-lag-and-consistency-model) for all queries in a Session.
 
 To use read replication with the following Worker code and Sessions API:
 
-1. [Enable read replication](/d1/best-practices/read-replication/#enable-read-replication)
+1. Enable read replication on a D1 database
+
+```curl
+curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{"read_replication": {"mode": "auto"}}"
+```
 2. Select `Deploy to Workers`.
 
 {/* Deploy to Workers button */}
@@ -158,15 +163,13 @@ async function resetTables(session: D1DatabaseSession) {
 
 ![D1 read replication concept](/images/d1/d1-read-replication-concept.png)
 
-When using D1 without read replication, D1 routes all queries (both read and write) to a specific database instance in [one location in the world](/d1/configuration/data-location/), known as the primary database instance. D1 request latency is dependent on the physical closeness of a user to the primary database instance. Users located further away from the primary database instance experience longer request latency due to [network round-trip time](https://www.cloudflare.com/learning/cdn/glossary/round-trip-time-rtt/).
+When using D1 without read replication, D1 routes all queries (both read and write) to a specific database instance in [one location in the world](/d1/configuration/data-location/), known as the <GlossaryTooltip term="primary database instance"> primary database instance </GlossaryTooltip>. D1 request latency is dependent on the physical closeness of a user to the primary database instance. Users located further away from the primary database instance experience longer request latency due to [network round-trip time](https://www.cloudflare.com/learning/cdn/glossary/round-trip-time-rtt/).
 
-When using read replication, D1 introduces multiple “almost up-to-date” copies of the primary database instance which only serve read requests, called <GlossaryTooltip term="read replica"> read replicas </GlossaryTooltip>. D1 creates the read replicas in multiple regions throughout the world [across the Cloudflare network](/d1/best-practices/read-replication/#read-replica-locations).
+When using read replication, D1 introduces multiple, asynchronously replicated copies of the primary database instance which only serve read requests, called <GlossaryTooltip term="read replica"> read replicas </GlossaryTooltip>. D1 creates the read replicas in multiple regions throughout the world [across the Cloudflare network](/d1/best-practices/read-replication/#read-replica-locations).
 
 A user may be located far away from the primary database instance but close to a read replica. When D1 routes read requests to the read replica instead of the primary database instance, the user enjoys shorter read request response times.
 
-D1 asynchronously replicates changes from the primary database instance to all read replicas. This means that at any given time, a read replica may be arbitrarily out of date. The time it takes for the latest committed data in the primary database instance to be replicated to the read replica is known as the <GlossaryTooltip term="replica lag"> replica lag </GlossaryTooltip>.
-
-It is replica lag and non-deterministic routing to individual replicas that can lead to application data consistency issues, which Sessions API help handle by ensuring sequential consistency. For more information refer to [Replica lag and consistency model](/d1/best-practices/read-replication/#replica-lag-and-consistency-model).
+D1 asynchronously replicates changes from the primary database instance to all read replicas. This means that at any given time, a read replica may be arbitrarily out of date. The time it takes for the latest committed data in the primary database instance to be replicated to the read replica is known as the <GlossaryTooltip term="replica lag"> replica lag </GlossaryTooltip>. It is replica lag and non-deterministic routing to individual replicas that can lead to application data consistency issues, which Sessions API helps handle by ensuring sequential consistency. For more information, refer to [replica lag and consistency model](/d1/best-practices/read-replication/#replica-lag-and-consistency-model).
 
 :::note
 All write queries are still forwarded to the primary database instance. Read replication only improves the query response time for read requests.
@@ -185,9 +188,9 @@ D1 read replication achieves this by attaching a <GlossaryTooltip term="bookmark
 
 ### Enable read replication
 
-Use REST API to enable read replication on your D1 database.
+With REST API, set `"read_replication": "mode":"auto"` to enable read replication on a D1 database.
 
-Set `"mode":"auto"` to enable read replication.
+For REST API, use a [API token](/fundamentals/api/get-started/create-token/) with `D1:Edit` [permission](/fundamentals/api/reference/permissions/#account-permissions).
 
 <Tabs>
 <TabItem label="cURL">
@@ -195,7 +198,7 @@ Set `"mode":"auto"` to enable read replication.
 curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"read_replication": {"mode": "auto"}}'
+  -d "{"read_replication": {"mode": "auto"}}"
 ```
 </TabItem><TabItem label="TypeScript">
 ```ts
@@ -217,9 +220,9 @@ await fetch ("/v4/accounts/{account_id}/d1/database/{database_id}", {
 
 ### Disable read replication
 
-Use REST API to disable read replication on your D1 database. If this is your first time using REST API, create an API token. Refer to [Create API token](/fundamentals/api/get-started/create-token/).
+With REST API, set `"read_replication": "mode":"disable"` to disable read replication on a D1 database.
 
-Set `"mode":"disable"` to disable read replication.
+For REST API, use a [API token](/fundamentals/api/get-started/create-token/) with `D1:Edit` [permission](/fundamentals/api/reference/permissions/#account-permissions).
 
 <Tabs>
 <TabItem label="cURL">
@@ -227,7 +230,7 @@ Set `"mode":"disable"` to disable read replication.
 curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"read_replication": {"mode": "disable"}}'
+  -d "{"read_replication": {"mode": "disable"}}"
 ```
 </TabItem><TabItem label="TypeScript">
 ```ts
@@ -249,7 +252,9 @@ await fetch ("/v4/accounts/{account_id}/d1/database/{database_id}", {
 
 ### Check if read replication is enabled
 
-The following code uses REST API to check if read replication is enabled / disabled.
+`GET` D1 database REST endpoint returns if read replication is enabled or disabled. 
+
+For REST API, use a [API token](/fundamentals/api/get-started/create-token/) with `D1:Read` [permission](/fundamentals/api/reference/permissions/#account-permissions).
 
 <Tabs>
 <TabItem label="cURL">
@@ -275,20 +280,19 @@ console.log(data.read_replication.mode);
 </TabItem>
 </Tabs>
 
-- If the output is `auto`, read replication is enabled.
-- If the output is `disabled`, read replication is disabled.
+- Check the `read_replication` property of the `result` object
+	- `"mode": "auto"` indicates read replication is enabled
+	- `"mode": "disable"` indicates read replication is disabled
 
 ### Start a Session without constraints
 
 To create a Session from any database version, use `withSession()` without any parameters, which will route the first query to any database instance, either the primary database instance or a read replica.
 
 ```ts
-// synchronous
-let session = env.DB_D1.withSession()
-const stmt = session
-.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
-// wait for Session condition, queries within batch have casual consistency
-const result = await session.run()
+const session = env.DB.withSession() // synchronous
+const result = await session // query executes on either primary database or a read replica
+	.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
+	.run()
 ```
 
 - `withSession()` is the same as `withSession("first-unconstrained")`
@@ -322,11 +326,10 @@ To create a Session from the latest database version, use `withSession(first-pri
 
 ```ts
 // synchronous
-let session = env.DB_D1.withSession('first-primary')
-const stmt = session
-.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
-// wait for Session condition, queries within batch have casual consistency
-const result = await session.run()
+const session = env.DB.withSession('first-primary') // synchronous
+const result = await session // query executes on primary database
+	.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
+	.run()
 ```
 
 - This approach is best when your application requires the latest database version. All queries in a Session ensure sequential consistency.
@@ -363,15 +366,17 @@ async function getBillStatement(accountId: string, billId: string, bookmark: str
 
 ### Start a Session from previous context (bookmark)
 
-To create a new Session from the context of a previous Session, pass a `bookmark` parameter to guarantee that the Session starts with database state as of or later than the provided `bookmark`.
+To create a new Session from the context of a previous Session, pass a `bookmark` parameter to guarantee that the Session starts with database state as of or later than the provided `bookmark`. `bookmark` could be saved in HTTP header from previous Session.
 
 ```ts
-// synchronous
-let session = env.DB_D1.withSession('bookmark_string')
-const stmt = session
-.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
-// wait for Session condition, queries within batch have casual consistency
-const result = await session.run()
+const bookmark = request.headers.get('x-d1-bookmark') ?? 'first-unconstrained';
+
+const session = env.DB.withSession(bookmark)
+const result = await session
+	.prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
+	.run()
+// store bookmark for a future Session
+response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
 ```
 
 - Starting a Session with a `bookmark` ensures the new Session has all the same context as the previous Session.
@@ -470,14 +475,14 @@ export default {
 } satisfies ExportedHandler<Env>;
 ``` */}
 
-### Inspect `meta` fields
+### Check where D1 request was processed
 
-To see how D1 requests are processed by the additional database instances, return `served_by_region` and `served_by_primary` fields from the `meta` object. You can also manually calculate the query latency using `Date.now()` before and after your query.
+To see how D1 requests are processed by the addition of read replicas, `served_by_region` and `served_by_primary` fields are returned by the `meta` object in a [D1 Result](/d1/worker-api/return-object/#d1result). 
 
 ```ts
-function buildResponse(session: D1DatabaseSession, res: D1Result, tsStart: number) {
+function buildResponse(session: D1DatabaseSession, res: D1Result, startTimestamp: number) {
 	return {
-		d1Latency: Date.now() - tsStart,
+		d1Latency: Date.now() - startTimestamp,
 
 		results: res.results,
 		servedByRegion: res.meta.served_by_region ?? "",
@@ -488,6 +493,9 @@ function buildResponse(session: D1DatabaseSession, res: D1Result, tsStart: numbe
 	};
 }
 ```
+
+- `served_by_region` and `served_by_primary` fields are present for all D1 remote requests, regardless of whether read replication is enabled. On local development, `npx wrangler dev`, these fields are `null`.
+- You can also manually calculate the query latency using `Date.now()` before and after your query.
 
 ## Read replica locations
 
@@ -506,12 +514,12 @@ Read replica locations are subject to change at Cloudflare's discretion.
 
 ## Observability
 
-To see the impact of read replication, check the how D1 requests are processed by additional database instances. You can use:
+To see the impact of read replication and check the how D1 requests are processed by additional database instances, you can use:
 
 - The `meta` object within the [`D1Result`](/d1/worker-api/return-object/#d1result) return object, which includes new fields:
   - `served_By_Region`
   - `served_By_Primary`
-- The [Cloudflare dashboard](https://dash.cloudflare.com/), where you can view your metrics breakdown by region.
+- The [Cloudflare dashboard](https://dash.cloudflare.com/), where you can view your metrics breakdown by region that processed D1 requests.
 
 ## Known limitations
 
@@ -546,7 +554,7 @@ A system with multiple read replicas located around the world improves the perfo
 
 You may wish to refer to the following resources:
 
-- Blog: TBC
+- Blog: [Beta announcement & technical deep dive](https://blog.cloudflare.com/d1-read-replication-beta)
 - Blog: [Building D1: a Global Database](https://blog.cloudflare.com/building-d1-a-global-database/)
 - [D1 Sessions API documentation](/d1/worker-api/d1-database#withsession)
 - [Demo application]
