@@ -382,7 +382,7 @@ const result = await session
 response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
 ```
 
-- Starting a Session with a `bookmark` ensures the new Session has all the same context as the previous Session.
+- Starting a Session with a `bookmark` ensures the new Session will be at least as up-to-date as the previous Session that generated the given `bookmark`.
 - Refer to the [D1 Workers Binding API documentation](/d1/worker-api/d1-database#withsession).
 
 {/* #### Example of using `bookmark`
