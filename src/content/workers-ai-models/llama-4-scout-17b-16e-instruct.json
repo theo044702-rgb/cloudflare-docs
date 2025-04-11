@@ -1,38 +1,38 @@
 {
-    "id": "02c16efa-29f5-4304-8e6c-3d188889f875",
+    "id": "06455e78-19f7-487b-93cd-c05a3dd07813",
     "source": 1,
-    "name": "@cf/qwen/qwq-32b",
-    "description": "QwQ is the reasoning model of the Qwen series. Compared with conventional instruction-tuned models, QwQ, which is capable of thinking and reasoning, can achieve significantly enhanced performance in downstream tasks, especially hard problems. QwQ-32B is the medium-sized reasoning model, which is capable of achieving competitive performance against state-of-the-art reasoning models, e.g., DeepSeek-R1, o1-mini.",
+    "name": "@cf/meta/llama-4-scout-17b-16e-instruct",
+    "description": "Meta's Llama 4 Scout is a 17 billion parameter model with 16 experts that is natively multimodal. These models leverage a mixture-of-experts architecture to offer industry-leading performance in text and image understanding.",
     "task": {
         "id": "c329a1f9-323d-4e91-b2aa-582dd4188d34",
         "name": "Text Generation",
         "description": "Family of generative text models, such as large language models (LLM), that can be adapted for a variety of natural language tasks."
     },
-    "created_at": "2025-03-05 21:52:40.974",
+    "created_at": "2025-04-05 20:25:56.137",
     "tags": [],
     "properties": [
         {
             "property_id": "context_window",
-            "value": "24000"
+            "value": "131000"
         },
         {
             "property_id": "price",
             "value": [
                 {
                     "unit": "per M input tokens",
-                    "price": 0.66,
+                    "price": 0,
                     "currency": "USD"
                 },
                 {
                     "unit": "per M output tokens",
-                    "price": 1,
+                    "price": 0,
                     "currency": "USD"
                 }
             ]
         },
         {
-            "property_id": "lora",
-            "value": "true"
+            "property_id": "terms",
+            "value": "https://github.com/meta-llama/llama-models/blob/main/models/llama4/LICENSE"
         }
     ],
     "schema": {
@@ -40,7 +40,7 @@
             "type": "object",
             "oneOf": [
                 {
-                    "title": "Prompt",
+                    "title": "Ai_Cf_Meta_Llama_4_Prompt",
                     "properties": {
                         "prompt": {
                             "type": "string",
@@ -50,6 +50,20 @@
                         "guided_json": {
                             "type": "object",
                             "description": "JSON schema that should be fulfilled for the response."
+                        },
+                        "response_format": {
+                            "title": "JSON Mode",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "json_object",
+                                        "json_schema"
+                                    ]
+                                },
+                                "json_schema": {}
+                            }
                         },
                         "raw": {
                             "type": "boolean",
@@ -115,7 +129,7 @@
                     ]
                 },
                 {
-                    "title": "Messages",
+                    "title": "Ai_Cf_Meta_Llama_4_Messages",
                     "properties": {
                         "messages": {
                             "type": "array",
@@ -347,6 +361,20 @@
                                         ]
                                     }
                                 ]
+                            }
+                        },
+                        "response_format": {
+                            "title": "JSON Mode",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [
+                                        "json_object",
+                                        "json_schema"
+                                    ]
+                                },
+                                "json_schema": {}
                             }
                         },
                         "guided_json": {
