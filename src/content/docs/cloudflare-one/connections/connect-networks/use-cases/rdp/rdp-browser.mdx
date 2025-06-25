@@ -34,7 +34,26 @@ Browser-based RDP can be used in conjunction with [routing over WARP](/cloudflar
 
 <Render file="access/add-target" params={{ protocol: "rdp" }}/>
 
-## 3. Create an Access application
+
+Cloudflare must be aware of your publically routed domain to proxy browser-based RDP traffic to your private network; this includes any [subdomain](/dns/manage-dns-records/how-to/create-subdomain.mdx) you wish to utilize.
+
+To do this, please ensure there is a corresponding DNS record for your full domain. This enables Cloudflare to source browser-based RDP traffic to your private network. For example, if you would like browser-based RDP traffic to go through `rdp.example.com`, where `rdp` is the subdomain and `example.com` is the main domain, you need to ensure there is a Cloudflare DNS record for `rdp`.
+
+In the [Cloudflare dashboard](https://dash.cloudflare.com/login), select your domain, then go to **DNS** > **Records** and verify that a [DNS record](/dns/manage-dns-records/how-to/create-dns-records/) exists for your domain. Again, the subdomain *must* have a record as well. Any arbitrary DNS record will work.
+
+If you do not already have a DNS record, [create a new DNS record](/dns/manage-dns-records/how-to/create-dns-records/#create-dns-records). Using `rdp.example.com` for demonstration, create an `AAAA` record that points your Access application public subdomain (`rdp`) to the IPv6 [discard address range](https://www.rfc-editor.org/rfc/rfc6666.html):
+
+- **Type**: _AAAA_
+- **Name**: `rdp`
+- **IPv6 address**: `100::`
+- **Proxy status**: On
+
+:::note
+		If you choose to create a _CNAME_ DNS record instead, *the Target field must be a fully qualified domain name.* It is *NOT* the target ID that you created in step (2). Using the example above, `rdp` would be the record Name and the Target field would be `www.rdp.example.com`. Proxy status would also need to be set to "On."
+:::
+
+
+## 4. Create an Access application
 
 <Render file="access/self-hosted-app/create-app" />
 
@@ -81,17 +100,6 @@ Ensure that only **Allow** or **Block** policies are present. **Bypass** and **S
 18. <Render file="access/self-hosted-app/advanced-settings" product="cloudflare-one" />
 
 19. Select **Save**.
-
-## 4. Create a DNS record
-
-In the [Cloudflare dashboard](https://dash.cloudflare.com/login), go to **DNS** > **Records** and verify that a [DNS record](/dns/manage-dns-records/how-to/create-dns-records/) exists for your domain. The DNS record allows Cloudflare to proxy browser-based RDP traffic to your private network. Any arbitrary DNS record will work.
-
-If you do not already have a DNS record, [create a new DNS record](/dns/manage-dns-records/how-to/create-dns-records/#create-dns-records). For example, you could create an `AAAA` record that points your Access application public hostname (`app.example.com`) to the IPv6 [discard address range](https://www.rfc-editor.org/rfc/rfc6666.html):
-
-- **Type**: _AAAA_
-- **Name**: `app`
-- **IPv6 address**: `100::`
-- **Proxy status**: On
 
 ## 5. (Recommended) Modify order of precedence in Gateway
 <Render file="access/modify-gateway-policy-precedence" product="cloudflare-one" params={{ selector: "Access Infrastructure Target" }} />
