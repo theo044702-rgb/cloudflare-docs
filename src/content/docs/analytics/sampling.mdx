@@ -18,13 +18,13 @@ To make this possible, data is stored at multiple resolutions (100%, 10%, 1%), e
 
 Cloudflare's data pipeline handles [over 700 million events per second](https://blog.cloudflare.com/how-we-make-sense-of-too-much-data) (and growing) across its global network. Processing and storing all this data in real-time would be prohibitively expensive and time-consuming. By leveraging carefully designed sampling methods, Cloudflare Analytics delivers accurate and actionable data, balancing precision with performance.
 
-Sampling enables: 
+Sampling enables:
 
 - **Scalability**: Reduces the volume of data processed without compromising insights.
 - **Performance**: Speeds up query execution for analytics.
 - **Cost-Efficiency**: Minimizes resource usage and storage needs.
 
-## Can I trust sampled data? 
+## Can I trust sampled data?
 
 Sampled data is highly reliable, and can provide insights that are as dependable as those derived from full datasets. Cloudflare designs sampling techniques to ensure we capture the essential characteristics of the entire dataset, delivering results you can trust.
 
@@ -54,7 +54,7 @@ In the near future, we plan to expose confidence intervals along with query resu
 - While sampling reduces the volume of processed data, aggregated metrics like totals, averages, and percentiles are extrapolated based on the sample size. This ensures the reported metrics represent the entire dataset accurately.
 
 **Limitations**
-- Sampling may not capture extremely rare events with very low occurrence rates. 
+- Sampling may not capture extremely rare events with very low occurrence rates.
 
 **Sampling in analytics interfaces**
 - GraphQL API: Sampling metadata is included in the query response. For more information, refer to the sampling [GraphQL Analytics API](/analytics/graphql-api/sampling/) documentation.
