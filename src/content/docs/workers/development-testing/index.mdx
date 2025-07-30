@@ -394,11 +394,11 @@ let remoteProxySessionDetails: Awaited<ReturnType<typeof experimental_maybeStart
 async function startOrUpdateDevSession() {
 	remoteProxySessionDetails = await experimental_maybeStartOrUpdateRemoteProxySession({
 			bindings: {
-					MY_KV: {
-						type: 'kv_namespace',
-						id: 'kv-id',
-						experimental_remote: true,
-					}
+				MY_KV: {
+					type: 'kv_namespace',
+					id: 'kv-id',
+					experimental_remote: true,
+				}
 			}
 		},
 		remoteProxySessionDetails
