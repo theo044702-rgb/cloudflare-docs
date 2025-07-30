@@ -364,7 +364,9 @@ This type conversion is temporary. In the future, the types will be unified so y
 
 This wrapper simplifies proxy session management. It takes:
 
-- The path to your Wrangler config, or an object with remote bindings.
+- An object that either contains
+  - the path to a Wrangler config and a potential target environment
+  - the name of the Worker and the bindings it is using
 - The current proxy session details (this parameter can be set to `null` or not being provided if none).
 - Potentially the auth data to use for the remote proxy session.
 
@@ -392,34 +394,34 @@ let mf: Miniflare | null;
 let remoteProxySessionDetails: Awaited<ReturnType<typeof experimental_maybeStartOrUpdateRemoteProxySession>> | null = null;
 
 async function startOrUpdateDevSession() {
-	remoteProxySessionDetails = await experimental_maybeStartOrUpdateRemoteProxySession({
-			bindings: {
-				MY_KV: {
-					type: 'kv_namespace',
-					id: 'kv-id',
-					experimental_remote: true,
-				}
-			}
-		},
-		remoteProxySessionDetails
-	);
+remoteProxySessionDetails = await experimental_maybeStartOrUpdateRemoteProxySession({
+bindings: {
+MY_KV: {
+type: 'kv_namespace',
+id: 'kv-id',
+experimental_remote: true,
+}
+}
+},
+remoteProxySessionDetails
+);
 
-	const miniflareOptions: MiniflareOptions = {
-		scriptPath: "./worker.js",
-		kvNamespaces: {
-			MY_KV: {
-				id: "kv-id",
-				remoteProxyConnectionString:
-				remoteProxySessionDetails?.session.remoteProxyConnectionString,
-			},
-		},
-	};
+    const miniflareOptions: MiniflareOptions = {
+    	scriptPath: "./worker.js",
+    	kvNamespaces: {
+    		MY_KV: {
+    			id: "kv-id",
+    			remoteProxyConnectionString:
+    			remoteProxySessionDetails?.session.remoteProxyConnectionString,
+    		},
+    	},
+    };
 
-	if (!mf) {
-		mf = new Miniflare(miniflareOptions);
-	} else {
-		mf.setOptions(miniflareOptions);
-	}
+    if (!mf) {
+    	mf = new Miniflare(miniflareOptions);
+    } else {
+    	mf.setOptions(miniflareOptions);
+    }
 }
 
 // ... tool logic that invokes `startOrUpdateDevSession()` ...
