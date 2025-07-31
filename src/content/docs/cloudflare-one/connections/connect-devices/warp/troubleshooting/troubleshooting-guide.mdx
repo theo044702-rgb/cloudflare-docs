@@ -185,11 +185,11 @@ Open the `warp-status.txt` file to review the WARP client settings, split tunnel
 
 #### Example `warp-settings.txt` file
 
-Review the following `warp-settings.txt` file and the descriptions of its content.
+Review the following `warp-settings.txt` file and the descriptions of its content below.
 
 ```txt
 Merged configuration:
-(derived)   Always On: true # Current state of the WARP toggle on the GUI
+(derived)   Always On: true
 (network policy)    Switch Locked: false # If false, does not allows the user to [turn off the WARP switch](https://developers.cloudflare.com/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#lock-warp-switch) and disconnect the client.
 (network policy)    Mode: WarpWithDnsOverHttps <-- This is WARP with Gateway mode
 (network policy)    WARP tunnel protocol: WireGuard
@@ -228,12 +228,134 @@ The command `warp-cli settings` will generate the same information in your devic
 
 #### Contents of `warp-settings.txt` file
 
-- `Always On`
+Review the meanings of the fields in `warp-settings.txt` that are relevant to troubleshooting.
 
-This
+##### Always On
 
-### Common misconfiguration issues
+Refers to the current state of the WARP toggle in the GUI. In the example file, the WARP toggle is switched on.
 
-#### Wrong profile ID
+```txt
+Always On: true
+```
 
-#### Wrong split tunnel configuration
+##### Switch Locked
+
+Refers to the [Lock WARP Switch](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#lock-warp-switch) which allows the user to turn off the WARP switch and disconnect the client. In the example file, the value is `false` meaning the user is able to turn the WARP switch on or off at their discretion.
+
+```txt
+Switch Locked: false
+```
+
+When the Lock WARP switch is enabled (`true`), users will need an [Admin override](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#admin-override) code to temporarily turn off WARP on their device.
+
+##### Mode
+
+Refers to the [WARP mode](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/) the device is using. In the example file, the WARP mode is `WarpWithDnsOverHttps` which is Gateway with WARP mode. Refer to the [WARP modes comparison matrix](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/) to match your `warp-settings.txt` file's value with the mode name.
+
+```txt
+Mode: WarpWithDnsOverHttps
+```
+
+##### Exclude mode, with hosts/ips
+
+Refers to your [split tunnel](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/split-tunnels/) settings. In the example file, WARP is running in Exclude mode, meaning all traffic except for the traffic destined for these hosts and IPs will be sent through the WARP tunnel. The host `cname.user.net` and the IP `1xx.1xx.1xx.1xx/25 ` are both excluded from the WARP tunnel.
+
+```txt
+Exclude mode, with hosts/ips:
+  1xx.1xx.1xx.1xx/25 (zoom)
+...
+  cname.user.net
+```
+
+##### Fallback domains
+
+Refers to your [Local Domain Fallback](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/local-domains/) settings. In the example file, WARP lists `intranet` as a domain that will not be sent to Gateway for proccessing and will instead be sent directly to the configured fallback servers.
+
+```txt
+(network policy)    Fallback domains:
+  intranet
+...
+```
+
+##### Allow Mode Switch
+
+Refers to the [Mode switch](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#mode-switch) setting. In the example file, the mode switch is enabled (`true`) which means the user has the option to switch between [Gateway with WARP](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-warp-default) mode and [Gateway with DoH](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-doh) mode.
+
+```txt
+Allow Mode Switch: true
+```
+
+##### Allow Updates
+
+Refers to the [Allow updates](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-updates) setting. In the example file, the allow updates setting is set to `false` meaning the user will not receive update notifications when a new version of the WARP client is available and cannot update WARP without administrator approval.
+
+```txt
+Allow Updates: false
+```
+
+##### Allowed to Leave Org
+
+Refers to the [Allow device to leave organization](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-device-to-leave-organization) setting. In the example file, the value is set to `true` meaning the user can log out from your Zero Trust organization.
+
+```txt
+Allowed to Leave Org: true
+```
+
+##### LAN Access Settings
+
+Refers to the [Allow users to enable local network exclusion](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-users-to-enable-local-network-exclusion) setting. When enabled, it allows users to temporarily access local devices (like printers) by excluding the detected local subnet from the WARP tunnel. This example indicates access is allowed until the next WARP reconnection, and only for subnets up to /24.
+
+```txt
+LAN Access Settings: Allowed until reconnect on a /24 subnet
+```
+
+##### Profile ID
+
+Refers to the [Device profile](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/) a device is using. In this example, the ID is `000000x1-00x1-1xx0-1xx1-11101x1axx11` which can be cross-referenced in the dashboard by going to **Zero Trust** > **My team** > **Devices** > selecting a device name and reviewing the **Device ID** under **Basic Information**.
+
+```txt
+Profile ID: 000000x1-00x1-1xx0-1xx1-11101x1axx11
+```
+
+## Common misconfiguration issues and solutions
+
+Use the following list to help identify and troubleshoot common WARP configuration problems.
+
+- [Wrong profile ID](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#edit-your-device-profile-match-rules)
+- [Wrong split tunnel configuration](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#wrong-split-tunnel-configuration)
+
+### Wrong profile ID
+
+If your organization has multiple device profiles defined in the Zero Trust dashboard, a device may be matched to an unexpected profile due to lack of precide matcing rules or how profile precedence is configured. Device profiles are evaluated top to bottom based on their order in the UI, and the first matching profile is applied.
+
+To debug a possibly misconfigured device profile, you must:
+
+1. [Check](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#check-the-applied-device-profile) that the applied device profile is correct.
+2. If the applied device profile is incorrect, you must then [edit your device profile](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#edit-your-device-profile-match-rules) for more precise rule matching.
+3. If the device profile is correct but you are still having issues, note this and move onto another possible WARP misconfiguraton to continue troubleshooting.
+
+#### Check the applied device profile
+
+To check that the applied device profile is the intended device profile:
+
+1. Go to [Zero Trust](https://one.dash.cloudflare.com/) > **Settings** > **WARP Client**.
+2. Find and select the device profile intended for the device.
+3. Under **Profile details** compare the Profile ID with the value found in the `warp-settings.txt` file.
+
+If the profile ID does not match the intended device profile, avoid [reordering profiles](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/#order-of-precedence) unless you are confident it will not affect other users.
+
+Instead, [modify the match rules](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#edit-your-device-profile-match-rules) in the intended profile to make them more specific (for example, by adding identity-based [selectors](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/#selectors) like [`email`](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/#user-email), or [`group name`](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/#user-group-names).)
+
+:::note
+
+Identity-based selectors are only available if the user [enrolled the device](/cloudflare-one/connections/connect-devices/warp/deployment/manual-deployment/) by logging in to an identity provider (IdP).
+
+:::
+
+#### Edit your device profile match rules
+
+To modify the match rules of a device profile, you will need to edit the device profile. To edit the device profile:
+
+<Render file="warp/edit-profile-settings" />
+
+### Wrong split tunnel configuration
