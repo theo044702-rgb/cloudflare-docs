@@ -11,9 +11,9 @@ This guide helps you diagnose and resolve common issues with the Cloudflare WARP
 
 1. **Before you start**: [Prerequisites](#prequisites), permissions, [version control](#check-your-warp-version) and WARP basics.
 2. **Collect logs**: Through the [dashboard]() (with DEX remote capture) or the [command-line interface](#option-b-collect-logs-via-the-cli) (CLI) (`warp-diag`).
-3. **Review logs**: [Status](#check-warp-status), [settings](#check-warp-settings), [profile ID](#wrong-profile-id), [split tunnel](#wrong-split-tunnel-configuration) configuration.
-4. **Fix common misconfigurations**: Profile mismatch, split tunnel issues, managed network issues.
-5. **File a support ticket**: What to include to solve your issue faster.
+3. **Review logs**: [Status](#check-warp-status), [settings](#check-warp-settings), [profile ID](#profile-id), [split tunnel](#exclude-mode-with-hostsips) configuration.
+4. **Fix common misconfigurations**: [Profile mismatch](#wrong-profile-id), [split tunnel issues](#wrong-split-tunnel-configuration), [managed network issues](#review-your-managed-network-settings).
+5. **File a support ticket**: [How to file a ticket](#file-a-support-ticket) after you have exhausted your troubleshooting options.
 
 ## 1. Before you start
 
@@ -28,6 +28,16 @@ This guide helps you diagnose and resolve common issues with the Cloudflare WARP
 Many troubleshooting issues are caused by outdated client versions. For the best performance and compatibility, administrators should check for new releases and [upgrade the WARP client](/cloudflare-one/connections/connect-devices/warp/download-warp/) before attempting to troubleshoot other issues.
 
 After updating the WARP client, monitor the issue to see if it recurs. If the issue persists, continue with the troubleshooting guide.
+
+:::tip[Check the device's WARP version]
+
+To a device's WARP version:
+
+1. Open the WARP GUI on the desktop.
+2. Select the gear icon.
+3. Select **About WARP**.
+
+:::
 
 ### WARP basics
 
@@ -49,7 +59,7 @@ WARP operates in several modes, each with different traffic handling capabilitie
 
 ## 2. Collect diagnostic logs
 
-You can collect diagnostic logs in two ways: the [Cloudflare dashboard](#option-a-collect-logs-via-the-cloudflare-dashboard) or the [`warp-diag`]() command-line interface (CLI).
+You can collect diagnostic logs in two ways: the [Cloudflare dashboard](#option-a-collect-logs-via-the-cloudflare-dashboard) or the [`warp-diag`](#option-b-collect-logs-via-the-cli) command-line interface (CLI).
 
 ### Option A: Collect logs via the Cloudflare dashboard
 
@@ -57,23 +67,20 @@ For WARP client versions higher than `2024.12.492.0`, you can collect diagnostic
 
 #### Start a remote capture
 
-<Render file="dex/pcaps-run" />
-
 :::tip[Best practice]
 
-To troubleshoot effectively, Cloudflare recommends that you recreate the steps where your issue emerges when capturing logs. Though recreating the issue may not be possible in all cases, the following troubleshooting regimen will ensure the most accurate capture of the state of WARP:
+To troubleshoot effectively, Cloudflare recommends reproducing the issue and noting your timestamps immediately before collecting logs. Though recreating the issue may not be possible in all cases, reproducing the issue right before WARP diag collection or during the window that a PCAP is running will help you troubleshoot with greater visibility.
 
-1. In **Zero Trust** > **DEX** > **Remote captures**, select **WARP diagnostic logs** and **Packet captures (PCAP)**. You can leave **Test all routes** unselected.
-2. Select **Run diagnostics**.
-3. While the diagnostics are running on the target device, recreate the steps that cause the problem.
-
-   If you set your **Time limit** on the **Remote captures** page to five minutes, recreate the steps that cause the problem on the target device in that five minute window before logs are generated. Keep timestamps of when you executed your steps to successfully review logs later.
-
-4. [Check the status](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#check-remote-capture-status) of your remote capture to verify its readiness.
-5. [Download the remote captures](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#check-remote-capture-status) when they have finished running.
-
-By following these steps, you will ensure that your WARP diagnostic logs have captured WARP activity relevant to your issue.
+Refer to [WARP log retention window](/cloudflare-one/connections/connect-devices/warp/troubleshooting/warp-logs/#log-retention-window) to learn more.
 :::
+
+<Render
+  file="dex/pcaps-run"
+  params={{
+    bestPractice: 'You must select WARP Diagnostic Logs. You can also choose to run a PCAP and reproduce the issue in the window the PCAP is running to gain further network insight. The scope of this troubleshooting covers only WARP diagnostic logs. If not choosing PCAPs, reproduce the right issue before running diagnostics.'
+  }}
+/>
+
 
 #### Check remote capture status
 
@@ -99,9 +106,9 @@ To troubleshoot effectively, Cloudflare recommends that you recreate the steps w
 
 After you have your diagnostic files, go to [Review diagnostic logs](/cloudflare-one/connections/connect-devices/warp/troubleshooting/troubleshooting-guide/#2-review-diagnostics-logs) to continue troubleshooting.
 
-## 2. Review diagnostics logs
+## 3. Review key files
 
-WARP diagnostic logs display WARP information relevant to the target device after all MDM and other software operations have been applied, allowing you to determine whether WARP is misconfigured or behaving in an unexpected way. After downloading the WARP diagnostic logs, you will review key files to check that WARP is operating as intended. You will check the device's WARP status, its applied profile ID, and its split tunnel configuration.
+WARP diagnostic logs capture the final WARP configuration and status on a device after all MDM policies and other software settings have been applied. Reviewing these logs can help you identify misconfigurations or unexpected behavior.
 
 ### Check WARP status
 
@@ -129,7 +136,7 @@ Merged configuration:
 (network policy)    WARP tunnel protocol: WireGuard
 (default)   Disabled for Wifi: false
 (default)   Disabled for Ethernet: false
-(reg defaults)  Resolve via: 1xx0x1011xx000000000f0x00000x11.cloudflare-gateway.com @ [1xx.1xx.1x.1, 1x01:1x00:1x00::1xx1] <- The SNI Cloudflare will use and the IP address for DNS-over-HTTP (DoH) requests
+(reg defaults)  Resolve via: 1xx0x1011xx000000000f0x00000x11.cloudflare-gateway.com @ [1xx.1xx.1x.1, 1x01:1x00:1x00::1xx1] # The SNI Cloudflare will use and the IP address for DNS-over-HTTP (DoH) requests
 (user set)  qlog logging: Enabled
 (default)   Onboarding: true # If true, the user sees a onboarding prompt when they first install the WARP client
 (network policy)    Exclude mode, with hosts/ips: # Split tunnel configuration
@@ -146,11 +153,11 @@ Merged configuration:
 (network policy)    Captive Portal: 180
 (network policy)    Support URL: my-organizations-support-portal.com # Your organization's support portal or IT help desk
 (user set)  Organization: Organization-Name
-(network policy)    Allow Mode Switch: true  # The user is allowed to switch between WARP with configurations (DoH -> Gateway Mode)
-(network policy)    Allow Updates: false <------- Will the client perform the update checks, doesn't necessarily mean they'll be able to install them (depends on user permissions)
-(network policy)    Allowed to Leave Org: true <-- Is the button in the GUI grayed out or not.  Note, it'll always be grayed out if they have an MDM file
+(network policy)    Allow Mode Switch: true  # The user is allowed to switch between WARP modes
+(network policy)    Allow Updates: false # WARP client will not perform update checks
+(network policy)    Allowed to Leave Org: true
 (api defaults)  Known apple connectivity check IPs: xx.xxx.0.0/16;
-(network policy)    LAN Access Settings: Allowed until reconnect on a /24 subnet  <-- The maximum size of network that will be allowed when Access Lan is clicked.
+(network policy)    LAN Access Settings: Allowed until reconnect on a /24 subnet # The maximum size of network that will be allowed when Access Lan is clicked.
 (network policy)    Profile ID: 000000x1-00x1-1xx0-1xx1-11101x1axx11
 ```
 
@@ -251,7 +258,7 @@ Refers to the [Device profile](/cloudflare-one/connections/connect-devices/warp/
 Profile ID: 000000x1-00x1-1xx0-1xx1-11101x1axx11
 ```
 
-## Common misconfiguration issues and solutions
+## 4. Fix common misconfigurations
 
 To verify that WARP is configured and working properly, review the following:
 
@@ -264,7 +271,7 @@ A profile ID is a unique identifier assigned to each [device profile]((/cloudfla
 
 If your organization has multiple device profiles defined in the Zero Trust dashboard, a device may be matched to an unexpected profile due to lack of precise matcing rules or how profile precedence is configured.
 
-:::tip[WARP evaluates profile IDs according to chronological order in the dashboard]
+:::note[WARP evaluates profile IDs according to chronological order in the dashboard]
 
 <Render file="warp/device-profile-order-of-precedence" />
 
@@ -312,12 +319,6 @@ When troubleshooting a managed network, check these things:
 
 	To simplify management and prevent errors, avoid creating multiple managed network profiles for the same location. For example, if you have multiple TLS endpoints in one office, link them all to a single device profile. This reduces the risk of a device matching an unintended profile due to a configuration error.
 
-	// are 2 and 3 saying the same thing //
-
-3. Ensure the device can only reach one managed network.
-
-	If a device can reach more than one managed network simultaneously, WARP cannot determine which profile to apply, leading to unpredictable results. Make sure the managed network configuration is unique to each location.
-
 ### Wrong split tunnel configuration
 
 <Render file="warp/split-tunnel-intro" />
@@ -350,7 +351,7 @@ If your dashboard split tunnel configuration does not match your `warp-settings.
 
 If your `warp-settings.txt` split tunnel configuration is not matching what is in the dashboard, you can force the WARP client to fetch the latest configuration to resolve the discrepancy. You can either instruct the end user to toggle WARP off and on, reset their encryption keys, or force the fetch as an admin. All three options will result in the WARP client fetching the latest data.
 
-##### Toggle WARP off and back on
+##### Option A: Toggle WARP off and back on
 
 On the end user device, open the WARP GUI and toggle WARP on and off.
 
@@ -358,7 +359,7 @@ If the end user's WARP switch is locked, they will need an admin override code t
 
 After you toggle WARP back on, the WARP client will fetch new settings when it reconnects.
 
-##### Reset the encryption keys
+##### Option B: Reset the encryption keys
 
 To reset the encyrption keys on an end user's desktop:
 
@@ -368,35 +369,53 @@ To reset the encyrption keys on an end user's desktop:
 
 Resetting the encryption keys forces the WARP client to reestablish its tunnel and retrieve the latest configuration.
 
-##### Revoke the user session
+##### Option C: Revoke the user session
 
-An administrator can revoke the user's session to force a complete reenrollment.
+An administrator can revoke the user's session from the Cloudflare dashboard to force a complete reenrollment.
 
-1. In the Zero Trust dashboard, go to My Team > Users.
-
+1. In the Zero Trust dashboard, go to **My Team** > **Users**.
 2. Select the checkbox next to the user's name.
-
-3. Select Action > Revoke access.
+3. Select **Action** > **Revoke access**.
 
 Revoking access will prompt the user to log back in. The WARP client will then perform a new registration and fetch the latest settings from the dashboard.
 
 To debug quickly that the Split Tunnels settings have been updated, run `warp-cli settings` on the device and review the configuration again.
 
-## File a support ticket
+## 5. File a support ticket
 
-To ensure faster resolution when contacting support, include as much relevant detail as possible in your ticket. Make sure your ticket includes:
+To ensure efficient resolution when [contacting support](/support/contacting-cloudflare-support/), include as much relevant detail as possible in your ticket:
 
-`[]` Context: Briefly describe the scenario or use case (for example, where the user was, what they were trying to do).
-`[]` Steps taken so far: Outline any troubleshooting or changes already attempted.
-`[]` Timestamps: Be specific — include the exact time and time zone when the issue occurred.
+<ul>
+  <li>
+    <label>
+      <input type="checkbox" /> Context: Briefly describe the scenario or use case (for example, where the user was, what they were trying to do).
+    </label>
+  </li>
+  <li>
+    <label>
+      <input type="checkbox" /> Steps taken so far: Outline any troubleshooting or changes already attempted.
+    </label>
+  </li>
+  <li>
+    <label>
+      <input type="checkbox" /> Timestamps: Be specific and include the exact time and time zone when the issue occurred.
+    </label>
+  </li>
+	<li>
+    <label>
+      <input type="checkbox" /> WARP diagnostics logs: Include the WARP diag you downloaded from the dashboard or through the CLI.
+    </label>
+  </li>
+</ul>
 
-For example:
+:::danger[Avoid vague ticket descriptions]
+Refer to the following example of a vague ticket description:
 
-❌ Avoid:
 Ken was on the train and had captive portal issues. `warp-diag` is attached.
+:::
 
-✅ More helpful:
+:::tip[Include scenario, timestamps, and steps taken to troubleshoot the issue]
+Refer to the following example of an ideal ticket description:
+
 Karen was on a train on July 17, 2025, at approximately 1:00 PM Central Time. She attempted to connect to a captive portal but received the following error message in Chrome: `error_message_details`. A warp-diag was collected immediately after and is attached.
-
-
-
+:::
