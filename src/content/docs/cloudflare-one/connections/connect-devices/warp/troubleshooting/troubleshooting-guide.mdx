@@ -121,7 +121,7 @@ Collect WARP diagnostic logs by downloading them to your desktop using the `warp
 
 :::tip[Best practice]
 
-To troubleshoot effectively, Cloudflare recommends that you recreate the steps where your issue emerges before running `warp-diag` and keep timestamps of your steps for review within the logs.
+To troubleshoot effectively, Cloudflare recommends that you recreate the steps that cause the issue before running `warp-diag` and keep timestamps of your steps for review within the logs.
 
 :::
 
@@ -160,7 +160,7 @@ If the WARP client is experiencing issues, the error will display in the WARP GU
 
 ### Check WARP settings
 
-After you have checked WARP status, you will review WARP's settings on the device to check if the expected configuration has been applied. Open the `warp-settings.txt` file to review the WARP client settings. You will check the device's applied device profile and split tunnel configuration.
+After you have checked WARP status, review WARP's settings on the device to check if the expected configuration has been applied. Open the `warp-settings.txt` file to review the WARP client settings. You will check the device's applied device profile and split tunnel configuration.
 
 #### Example `warp-settings.txt` file
 
@@ -264,7 +264,7 @@ Refers to your [Local Domain Fallback](/cloudflare-one/connections/connect-devic
 
 ##### Allow Mode Switch
 
-Refers to the [Mode switch](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#mode-switch) setting. In the example file, the mode switch is enabled (`true`) which means the user has the option to switch between [Gateway with WARP](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-warp-default) mode and [Gateway with DNS-over-HTTPs (DoH)](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-doh) mode.
+Refers to the [Mode switch](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#mode-switch) setting. In the example file, the mode switch is enabled (`true`) which means the user has the option to switch between [Gateway with WARP](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-warp-default) mode and [Gateway with DNS-over-HTTPS (DoH)](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-modes/#gateway-with-doh) mode.
 
 ```txt
 Allow Mode Switch: true
@@ -272,7 +272,7 @@ Allow Mode Switch: true
 
 ##### Allow Updates
 
-Refers to the [Allow updates](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-updates) setting. In the example file, the allow updates setting is set to `false` meaning the user will not receive update notifications when a new version of the WARP client is available and cannot update WARP without administrator approval.
+Refers to the [Allow updates](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-updates) setting. In the example file, the allow updates setting is set to `false` meaning that the user will not receive update notifications when a new version of the WARP client is available and cannot update WARP without administrator approval.
 
 ```txt
 Allow Updates: false
