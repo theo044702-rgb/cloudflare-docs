@@ -13,7 +13,7 @@ This guide helps you diagnose and resolve common issues with the Cloudflare WARP
 2. **Collect logs**: Through the [dashboard](#option-a-collect-logs-via-the-cloudflare-dashboard) (with DEX remote capture) or the [command-line interface](#option-b-collect-logs-via-the-cli) (CLI) (`warp-diag`).
 3. **Review logs**: [Status](#check-warp-status), [settings](#check-warp-settings), [profile ID](#profile-id), [split tunnel](#exclude-mode-with-hostsips) configuration, and other settings.
 4. **Fix common misconfigurations**: [Profile mismatch](#wrong-profile-id), [split tunnel issues](#wrong-split-tunnel-configuration), [managed network issues](#review-your-managed-network-settings), [user group mismatch](#check-a-users-group-membership).
-5. **File a support ticket**: [How to file a ticket](#file-a-support-ticket) after you have exhausted your troubleshooting options.
+5. **File a support ticket**: [How to file a ticket](#5-file-a-support-ticket) after you have exhausted your troubleshooting options.
 
 ## 1. Before you start
 
@@ -21,11 +21,11 @@ This guide helps you diagnose and resolve common issues with the Cloudflare WARP
 
 - You must have completed the [Zero Trust onboarding flow](/cloudflare-one/setup/) with a Zero Trust organization created.
 - You must have the WARP client installed on an end user device.
-- You must have a [role](/cloudflare-one/roles-permissions/) that gives admin permission to download logs on the Cloudflare dashboard.
+- You must have a [role](/cloudflare-one/roles-permissions/) that gives admin permission to access logs on the Cloudflare dashboard.
 
 ### Check your WARP version
 
-Many troubleshooting issues are caused by outdated client versions. For the best performance and compatibility, administrators should check for new releases and [upgrade the WARP client](/cloudflare-one/connections/connect-devices/warp/download-warp/) before attempting to troubleshoot other issues.
+Many troubleshooting issues are caused by outdated client versions. For the best performance and compatibility, administrators should check for new releases and [update the WARP client](/cloudflare-one/connections/connect-devices/warp/download-warp/) before attempting to troubleshoot other issues.
 
 After updating the WARP client, monitor the issue to see if it recurs. If the issue persists, continue with the troubleshooting guide.
 
@@ -115,7 +115,7 @@ After you have your diagnostic files, go to [Review key files](/cloudflare-one/c
 
 ### Option B: Collect logs via the CLI
 
-Collect WARP diagnostic logs by downloading them to your desktop using the `warp-diag` CLI.
+Collect WARP diagnostic logs on your desktop using the `warp-diag` CLI.
 
 <Render file="warp/warpdiag-run" />
 
@@ -164,7 +164,7 @@ After you have checked WARP status, review WARP's settings on the device to chec
 
 #### Example `warp-settings.txt` file
 
-After you have downloaded the WARP diagnostic logs, open the `warp-settings.txt` file. Review the following example `warp-settings.txt` file and the descriptions of its content below.
+Find the WARP diagnostic logs on your desktop, and open the `warp-settings.txt` file. Review the following example `warp-settings.txt` file and the descriptions of its content below.
 
 ```txt
 Merged configuration:
@@ -467,14 +467,19 @@ To ensure efficient resolution when [contacting support](/support/contacting-clo
       <input type="checkbox" /> Context: Briefly describe the scenario or use case (for example, where the user was, what they were trying to do).
     </label>
   </li>
-  <li>
+	  <li>
     <label>
-      <input type="checkbox" /> Steps taken so far: Outline any troubleshooting or changes already attempted.
+      <input type="checkbox" /> Reproduction steps: Describe the steps you took to reproduce the issue during troubleshhooting.
     </label>
   </li>
   <li>
     <label>
       <input type="checkbox" /> Timestamps: Be specific and include the exact time and time zone when the issue occurred.
+    </label>
+  </li>
+	  <li>
+    <label>
+      <input type="checkbox" /> Troubleshooting attempts: Outline any troubleshooting steps or changes already attempted to resolve the issue.
     </label>
   </li>
 	<li>
@@ -493,5 +498,5 @@ Ken was on the train and had captive portal issues. `warp-diag` is attached.
 :::tip[Include scenario, timestamps, and steps taken to troubleshoot the issue]
 Refer to the following example of an ideal ticket description:
 
-Karen was on a train on July 17, 2025, at approximately 1:00 PM Central Time. She attempted to connect to a captive portal but received the following error message in Chrome: `error_message_details`. A warp diag was collected immediately after and is attached.
+Karen was on a train on July 17, 2025, at approximately 1:00 PM Central Time. She attempted to connect to a captive portal but received the following error message in Chrome: `ERR_CONNECTION_RESET`. A warp diag was collected immediately after and is attached.
 :::
