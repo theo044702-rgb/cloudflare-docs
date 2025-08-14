@@ -98,7 +98,11 @@ Configure Gateway to resolve the private hostname using your internal DNS resolv
 
 ### 5. Route traffic through WARP
 
-In your [device profiles](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/), [configure Split Tunnels](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/split-tunnels/) so that the following IPs route through the WARP tunnel:
+This section details routing requirements for WARP client deployments. For information about WARP Connector and other connectivity methods, refer to [Supported on-ramps](#device-connectivity).
+
+#### Split Tunnels
+
+In your WARP [device profiles](/cloudflare-one/connections/connect-devices/warp/configure-warp/device-profiles/), configure [Split Tunnels](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/split-tunnels/) so that the following IPs route through the WARP tunnel:
 
 - <GlossaryTooltip term="initial resolved IP">Initial resolved IP</GlossaryTooltip> CGNAT range:
 	<Render file="gateway/egress-selector-cgnat-ips" />
@@ -106,6 +110,10 @@ In your [device profiles](/cloudflare-one/connections/connect-devices/warp/confi
 - Internal DNS resolver IP
 
 For more details on configuring Split Tunnels, refer to [Route private network IPs through WARP](/cloudflare-one/connections/connect-networks/private-net/cloudflared/connect-cidr/#3-route-private-network-ips-through-warp).
+
+#### Local Domain Fallback
+
+By default, the WARP client uses the local DNS resolver on the device to resolve common local domains (such as `.internal` and `local`). These top-level domains are on your [Local Domain Fallback](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/local-domains/) list and bypass the Gateway resolver. To resolve a private hostname with Gateway, [delete its domain](/cloudflare-one/connections/connect-devices/warp/configure-warp/route-traffic/local-domains/#delete-a-domain) from Local Domain Fallback.
 
 ### 6. (Recommended) Filter network traffic with Gateway
 
@@ -173,6 +181,10 @@ End users can now reach the application by going to its private hostname. For ex
 If you [enabled the Gateway proxy](#enable-the-gateway-proxy), you can view the traffic in your [Gateway activity logs](/cloudflare-one/insights/logs/gateway-logs/).
 
 ### Troubleshooting
+
+:::note
+Routing issues are the most common type of misconfiguration. Make sure to check WARP Split Tunnels and Local Domain Fallback as described in [Step 5](#5-route-traffic-through-warp).
+:::
 
 For a step-by-step troubleshooting procedure, refer to [Troubleshoot private network connectivity](/cloudflare-one/connections/connect-networks/troubleshoot-tunnels/private-networks/).
 
