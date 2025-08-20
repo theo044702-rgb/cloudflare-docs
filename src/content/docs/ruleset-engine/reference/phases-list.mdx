@@ -20,6 +20,17 @@ The following tables list the [phases](/ruleset-engine/about/phases/) of Cloudfl
 | `mt_managed`     | [Magic Firewall managed rulesets](/magic-firewall/how-to/enable-managed-rulesets/)               |
 | `mt_ids_managed` | [Magic Firewall Intrusion Detection System (IDS)](/magic-firewall/about/ids/)                    |
 
+### Request phases
+
+The phases execute in the order they appear in the table:
+
+| Phase name                         | Used in product/feature                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| `http_request_firewall_custom`     | [Custom rules (Web Application Firewall)](/waf/custom-rules/)                   |
+| `http_request_firewall_managed`    | [WAF Managed Rules](/waf/managed-rules/)                                        |
+| `http_ratelimit`                   | [Rate limiting rules (WAF)](/waf/rate-limiting-rules/)                          |
+| `mt_ids_managed` | [Magic Firewall Intrusion Detection System (IDS)](/magic-firewall/about/ids/)                    |
+
 ## Application layer
 
 [Application-layer](https://www.cloudflare.com/learning/ddos/what-is-layer-7/) phases apply to requests received on the Cloudflare global network.
