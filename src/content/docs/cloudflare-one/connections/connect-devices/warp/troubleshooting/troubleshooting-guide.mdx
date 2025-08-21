@@ -9,7 +9,7 @@ import { MetaInfo, Render, Steps, Stream, Tabs, TabItem, Type } from "~/componen
 
 This guide helps you diagnose and resolve common issues with the Cloudflare WARP client. It covers how to troubleshoot the WARP client on desktop operating systems, including Windows, macOS, and Linux.
 
-1. **Before you start**: [Prerequisites](#prerequisites), permissions, [version control](#check-your-warp-version) and WARP basics.
+1. **Before you start**: [Prerequisites](#prerequisites), permissions, [version control](#check-your-warp-version), and WARP basics.
 2. **Collect logs**: Through the [dashboard](#option-a-collect-logs-via-the-cloudflare-dashboard) (with DEX remote capture) or the [command-line interface](#option-b-collect-logs-via-the-cli) (CLI) (`warp-diag`).
 3. **Review logs**: [Status](#check-warp-status), [settings](#check-warp-settings), [profile ID](#profile-id), [split tunnel](#exclude-mode-with-hostsips) configuration, and other settings.
 4. **Fix common misconfigurations**: [Profile mismatch](#wrong-profile-id), [split tunnel issues](#wrong-split-tunnel-configuration), [managed network issues](#review-your-managed-network-settings), [user group mismatch](#check-a-users-group-membership).
@@ -90,7 +90,7 @@ Collect WARP diagnostic logs remotely from the Zero Trust dashboard by using Dig
 
 :::tip[Best practice]
 
-To troubleshoot effectively, Cloudflare recommends reproducing the issue and noting your timestamps immediately before collecting logs. Though recreating the issue may not be possible in all cases, reproducing the issue right before WARP diag collection or during the window that a PCAP is running will help you troubleshoot with greater visibility.
+To troubleshoot effectively, Cloudflare recommends reproducing the issue and noting your timestamps immediately before collecting logs. Though recreating the issue may not be possible in all cases, reproducing the issue right before WARP diag collection or during the window that a packet capture (PCAP) is running will help you troubleshoot with greater visibility.
 
 Refer to [WARP log retention window](/cloudflare-one/connections/connect-devices/warp/troubleshooting/warp-logs/#log-retention-window) to learn more.
 :::
@@ -288,7 +288,7 @@ Allowed to Leave Org: true
 
 ##### LAN Access Settings
 
-Refers to the [Allow users to enable local network exclusion](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-users-to-enable-local-network-exclusion) setting. When enabled, it allows users to temporarily access local devices (like printers) by excluding the detected local subnet from the WARP tunnel. This example indicates access is allowed until the next WARP reconnection, and only for subnets up to /24.
+Refers to the [Allow users to enable local network exclusion](/cloudflare-one/connections/connect-devices/warp/configure-warp/warp-settings/#allow-users-to-enable-local-network-exclusion) setting. When enabled, it allows users to temporarily access local devices (like printers) by excluding the detected local subnet from the WARP tunnel. This example indicates access is allowed until the next WARP reconnection, and only for subnets up to `/24`.
 
 ```txt
 LAN Access Settings: Allowed until reconnect on a /24 subnet
@@ -325,7 +325,7 @@ If your organization has multiple device profiles defined in the Zero Trust dash
 
 2. [Managed network](#review-your-managed-network-settings) issues.
 3. User group [mismatch](#check-a-users-group-membership).
-4. Lack of [precise match rules](#edit-your-device-profile-match-rules)
+4. Lack of [precise match rules](#edit-your-device-profile-match-rules).
 
 #### Check the applied device profile
 
@@ -385,7 +385,7 @@ To check that the user belongs to the intended group:
 1. Log into [Zero Trust](https://one.dash.cloudflare.com/) > go to **My Team** > **Users**.
 2. Select the user.
 3. Under **User Registry Identity**, select the user's name.
-4. The Get-identity endpoint lists all the groups the user belongs to.
+4. The **Get-identity endpoint** lists all the groups the user belongs to.
 
 If the user was recently added to a group, they will need to update their group membership with Cloudflare Zero Trust. This can be accomplished by logging into the reauthenticate endpoint.
 
