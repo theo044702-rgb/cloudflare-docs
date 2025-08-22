@@ -45,7 +45,8 @@ With Containers you can run:
 - Applications and libraries that require a full filesystem, specific runtime, or Linux-like environment
 - Existing applications and tools that have been distributed as container images
 
-Container instances are spun up on-demand and controlled by code you write in your [Worker](/workers).  Instead of chaining together API calls or writing Kubernetes operators, you just write JavaScript:
+Container instances are spun up on-demand and controlled by code you write in your [Worker](/workers). Instead of chaining together API calls or writing Kubernetes operators, you just write JavaScript:
+
 <Tabs>
 	<TabItem label="Worker Code">
 ```js
@@ -57,14 +58,14 @@ export class MyContainer extends Container {
 }
 
 async fetch(request, env) {
-	const { "session-id": sessionId } = await request.json();
-	// Get the container instance for the given session ID
-	const containerInstance = getContainer(env.MY_CONTAINER, sessionId)
-	// Pass the request to the container instance on its default port
-	return containerInstance.fetch(request);
+const { "session-id": sessionId } = await request.json();
+// Get the container instance for the given session ID
+const containerInstance = getContainer(env.MY_CONTAINER, sessionId)
+// Pass the request to the container instance on its default port
+return containerInstance.fetch(request);
 }
 
-```
+````
 </TabItem>
 <TabItem label="Worker Config">
 <WranglerConfig>
@@ -77,7 +78,7 @@ async fetch(request, env) {
     {
       "class_name": "MyContainer",
       "image": "./Dockerfile",
-      "instances": 5,
+      "max_instances": 5,
     }
   ],
   "durable_objects": {
@@ -97,14 +98,21 @@ async fetch(request, env) {
 		}
 	],
 }
-```
+````
 
 </WranglerConfig>
 </TabItem>
 </Tabs>
 
-
- <LinkButton variant="primary" href="/containers/get-started/">Get started</LinkButton> <LinkButton variant="secondary" href="https://dash.cloudflare.com/?to=/:account/workers/containers">Containers dashboard</LinkButton>
+<LinkButton variant="primary" href="/containers/get-started/">
+	Get started
+</LinkButton>
+<LinkButton
+	variant="secondary"
+	href="https://dash.cloudflare.com/?to=/:account/workers/containers"
+>
+	Containers dashboard
+</LinkButton>
 
 ---
 
@@ -146,7 +154,11 @@ regional placement, Workflow and Queue integrations, AI-generated code execution
 	containers with Wrangler.
 </LinkTitleCard>
 
-<LinkTitleCard title="Limits" href="/containers/platform-details/#limits" icon="seti:lock">
+<LinkTitleCard
+	title="Limits"
+	href="/containers/platform-details/#limits"
+	icon="seti:lock"
+>
 	Learn about what limits Containers have and how to work within them.
 </LinkTitleCard>
 
@@ -160,4 +172,3 @@ regional placement, Workflow and Queue integrations, AI-generated code execution
 </LinkTitleCard>
 
 </CardGrid>
-

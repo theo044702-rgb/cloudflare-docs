@@ -5,10 +5,18 @@ sidebar:
   order: 1
 ---
 
-## How and where containers run
+## How Containers run
+
+Each container instance runs inside its own VM, which provides strong
+isolation from other workloads running on Cloudflare's network. Containers
+should be built for the `linux/amd64` architecture, and should stay within
+[size limits](/containers/platform-details/limits). Logging, metrics collection, and
+networking are automatically set up on each container.
+
+## Where Containers run
 
 After you deploy a Worker that uses a Container, your image is uploaded to
-[Cloudflare's Registry](/containers/image-management) and distributed globally to Cloudflare's Network.
+[Cloudflare's Registry](/containers/platform-details/image-management) and distributed globally to Cloudflare's Network.
 Cloudflare will pre-schedule instances and pre-fetch images across the globe to ensure quick start
 times when scaling up the number of concurrent container instances. This allows you to call
 `env.YOUR_CONTAINER.get(id)` and get a new instance quickly without worrying
@@ -26,11 +34,29 @@ locations, some container instances may be started in locations that are farther
 the end-user. This is done to ensure that the container instance starts quickly. You are
 only charged for actively running instances and not for any unused pre-warmed images.
 
-Each container instance runs inside its own VM, which provides strong
-isolation from other workloads running on Cloudflare's network. Containers
-should be built for the `linux/amd64` architecture, and should stay within
-[size limits](/containers/platform-details/#limits). Logging, metrics collection, and
-networking are automatically set up on each container.
+Once a particular container instance is running however (instances are defined with `MY_CONTAINER.get("unique-session-id")` ),
+any future requests while the container is alive will be routed to the initial location. However, if the container instance restarts,
+future requests could be routed to a different location.
+
+Note that Workers are not necessarily co-located with their associated Containers.
+
+An Example:
+
+- A user deploys a Container. Cloudflare automatically readies instances across its Network.
+- A request is made from a client in Bariloche, Argentia. It reaches the Worker in
+  Cloudflare's location in Neuquen, Argentina.
+- This Worker request calls `MY_CONTAINER.get("session-1337")` which brings up a Durable
+  Object, which then calls `this.ctx.container.start`.
+- This requests the nearest free Container instance.
+- Cloudflare recognizes that an instance is free in Buenos Aires, Argentina, and
+  starts it there.
+- A different user needs to route to the same container. This user's request reaches
+  the Worker running in Cloudflare's location in San Diego.
+- The Worker again calls `MY_CONTAINER.get("session-1337")`.
+- If the initial container instance is still running, the request is routed to the location
+  in Buenos Aires. If the initial container has gone to sleep, Cloudflare will once
+  again try to find the nearest "free" instance of the Container, likely
+  one in North America, and start an instance there.
 
 ## Life of a Container Request
 
@@ -62,3 +88,41 @@ which will allow container instances to always run in the same location as their
 Because all Container requests are passed through a Worker, end-users cannot make TCP or
 UDP requests to a Container instance. If you have a use case that requires inbound TCP
 or UDP from an end-user, please [let us know](https://forms.gle/AGSq54VvUje6kmKu8).
+
+### Cold starts
+
+A cold start is when a container instance is started from a completely stopped state.
+
+If you call `env.MY_CONTAINER.get(id)` with a completely novel ID and launch
+this instance for the first time, it will result in a cold start.
+
+This will start the container image from its entrypoint for the first time. Depending
+on what this entrypoint does, it will take a variable amount of time to start.
+
+Container cold starts can often be the 2-3 second range, but this is dependent
+on image size and code execution time, among other factors.
+
+Cloudflare will automatically pre-fetch images and pre-warm instances across its network as you scale.
+However, because there are a finite number pre-warmed locations, some container instances may be started in
+locations that are farther away from the end-user. This is done to ensure that the container instance starts quickly.
+
+You are only charged for actively running instances and not for any unused pre-warmed images.
+
+### After a request
+
+Cloudflare will not actively shut off a container instance after a specific amount of
+time. If you do not set `sleepAfter` on your Container class, or stop the instance
+manually, it will continue to run unless its host server is restarted. This
+happens on an irregular cadence, but frequently enough where Cloudflare does not
+guarantee that any instance will run for any set period of time.
+
+When a container instance is going to be shut down, it is sent a `SIGTERM` signal,
+and then a `SIGKILL` signal after 15 minutes. You should perform any necessary
+cleanup to ensure a graceful shutdown in this time. The container instance
+will be rebooted elsewhere shortly after this.
+
+All disk is ephemeral. When a Container instance goes to sleep, the next time
+it is started, it will have a fresh disk as defined by its container image.
+
+Persistent disk is something the Cloudflare team is exploring in the future, but
+is not slated for the near term.

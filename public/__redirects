@@ -2371,3 +2371,9 @@
 /realtime/realtimekit/get-started /realtime/realtimekit/getting-started/ 302
 /realtime/introduction /realtime/realtimekit/introduction 302
 /realtime/concepts /realtime/realtimekit/concepts 302
+
+# Containers
+/containers/platform-details/#limits /containers/platform-details/limits 301
+/containers/image-management /containers/platform-details/image-management 301
+/containers/scaling-and-routing /containers/platform-details/scaling-and-routing 301
+/containers/architecture /containers/platform-details/architecture 301
