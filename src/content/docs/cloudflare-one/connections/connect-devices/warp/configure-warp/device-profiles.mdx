@@ -7,7 +7,7 @@ sidebar:
 
 import { Render, TabItem, Tabs, APIRequest } from "~/components";
 
-<Render file="warp/device-profiles-intro" />
+<Render file="warp/device-profiles-intro" product="cloudflare-one" />
 
 ## Create a new profile
 
@@ -101,7 +101,7 @@ Send a `POST` request to the [Devices API](/api/resources/zero_trust/subresource
 
 ## Edit profile settings
 
-<Render file="warp/edit-profile-settings" />
+<Render file="warp/edit-profile-settings" product="cloudflare-one" />
 
 ## Verify device profile
 
@@ -123,7 +123,11 @@ You can configure device profiles to match against the following selectors, or c
 
 Apply a device profile based on the user's email.
 
-<Render file="gateway/selectors/user-email" params={{ UIname: "User email" }} />
+<Render
+	file="gateway/selectors/user-email"
+	product="cloudflare-one"
+	params={{ UIname: "User email" }}
+/>
 
 ### User group emails
 
@@ -131,6 +135,7 @@ Apply a device profile based on an [IdP group](/cloudflare-one/policies/gateway/
 
 <Render
 	file="gateway/selectors/user-group-email"
+	product="cloudflare-one"
 	params={{ UIname: "User group emails" }}
 />
 
@@ -140,6 +145,7 @@ Apply a device profile based on an [IdP group](/cloudflare-one/policies/gateway/
 
 <Render
 	file="gateway/selectors/user-group-ids"
+	product="cloudflare-one"
 	params={{ UIname: "User group IDs" }}
 />
 
@@ -149,6 +155,7 @@ Apply a device profile based on an [IdP group](/cloudflare-one/policies/gateway/
 
 <Render
 	file="gateway/selectors/user-group-names"
+	product="cloudflare-one"
 	params={{ UIname: "User group names" }}
 />
 
@@ -168,7 +175,7 @@ Apply a device profile based on the [OS version](/cloudflare-one/identity/device
 | ------------------------ | ------------------------- |
 | Operating system version | `os.version == \"1.2.0\"` |
 
-<Render file="warp/os-version-semver" />
+<Render file="warp/os-version-semver" product="cloudflare-one" />
 
 ### Managed network
 
@@ -182,7 +189,7 @@ Apply a device profile based on the [managed network](/cloudflare-one/connection
 
 Apply a device profile based on an attribute name and value from a [SAML IdP](/cloudflare-one/policies/gateway/identity-selectors/#generic-saml-idp).
 
-<Render file="gateway/selectors/saml-attributes" />
+<Render file="gateway/selectors/saml-attributes" product="cloudflare-one" />
 
 ### Service token
 
