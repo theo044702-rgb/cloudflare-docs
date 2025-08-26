@@ -2356,6 +2356,9 @@
 /ai-gateway/guardrails/* /ai-gateway/features/guardrails/:splat 301
 /ai-gateway/websockets-api/* /ai-gateway/usage/websockets-api/:splat 301
 
+# Pub-sub
+/pub-sub/* / 301
+
 # Realtime
 /realtime/limits /realtime/sfu/limits 302
 /realtime/sessions-tracks /realtime/sfu/sessions-tracks/ 302
