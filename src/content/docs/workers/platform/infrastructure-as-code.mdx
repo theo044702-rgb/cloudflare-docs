@@ -10,7 +10,7 @@ import { Icon } from "astro-icon/components";
 
 While [Wrangler](/workers/wrangler/configuration) makes it easy to upload and manage Workers, there are times when you need a more programmatic approach. This could involve using Infrastructure as Code (IaC) tools or interacting directly with the [Workers API](/api/resources/workers/). Examples include build and deploy scripts, CI/CD pipelines, custom developer tools, and automated testing.
 
-To make this easier, Cloudflare provides SDK libraries for popular languages, including [cloudflare-typescript](https://github.com/cloudflare/cloudflare-typescript) and [cloudflare-python](https://github.com/cloudflare/cloudflare-python). For IaC, you can use tools like HashiCorp's Terraform and the [Cloudflare Terraform Provider](/terraform) manage Workers resources.
+To make this easier, Cloudflare provides SDK libraries for popular languages such as [cloudflare-typescript](https://github.com/cloudflare/cloudflare-typescript) and [cloudflare-python](https://github.com/cloudflare/cloudflare-python). For IaC, you can use tools like HashiCorp's Terraform and the [Cloudflare Terraform Provider](/terraform) to manage Workers resources.
 
 Below are examples of deploying a Worker using different tools and languages, along with important considerations for managing Workers with IaC.
 
@@ -26,7 +26,7 @@ Generally, you'd run this bundling step before applying your Terraform plan or u
 wrangler deploy --dry-run --outdir build
 ```
 
-When using Wrangler for building but another method for uploading, make sure to copy all of your config from `wrangler.json` into your Terraform config, API request, or other. This is especially important with `compatibility_date` or flags your script relies on.
+When using Wrangler for building and a different method for uploading, make sure to copy all of your config from `wrangler.json` into your Terraform config or API request. This is especially important with `compatibility_date` or flags your script relies on.
 
 ## Terraform
 
@@ -40,6 +40,9 @@ variable "account_id" {
 resource "cloudflare_worker" "my_worker" {
   account_id = var.account_id
   name = "my-worker"
+  observability = {
+    enabled = true
+  }
 }
 
 resource "cloudflare_worker_version" "my_worker_version" {
@@ -68,6 +71,8 @@ resource "cloudflare_workers_deployment" "my_worker_deployment" {
 }
 ```
 
+Notice how you don't have to manage all of these resources in Terraform. For example, you could just the `cloudflare_worker` resource and seamlessly use Wrangler or your own deployment tools for Versions or Deployments.
+
 ## Cloudflare API Libraries
 
 This example uses the [cloudflare-typescript](https://github.com/cloudflare/cloudflare-typescript) SDK which provides convenient access to the Cloudflare REST API from server-side JavaScript or TypeScript.
@@ -75,7 +80,7 @@ This example uses the [cloudflare-typescript](https://github.com/cloudflare/clou
 <GitHubCode
 	repo="cloudflare/cloudflare-typescript"
 	file="examples/workers/script-upload.ts"
-	commit="a7baf4fed47910228880800d5887a5d438baa6ad"
+	commit="cb55a45d615425f6aaf9ee8a237d2c5424bf30b7"
 	lang="ts"
 	useTypeScriptExample={true}
 />
@@ -346,3 +351,38 @@ EOF
 
 </TabItem>
 </Tabs>
+
+## Considerations with Durable Objects
+
+[Durable Object](/durable-objects/) migrations are applied with deployments. This means you can't bind to a durable object in a Version if a deployment doesn't exist i.e. migrations haven't been applied. For example, running this in Terraform will fail the first time the plan is applied:
+
+```tf
+resource "cloudflare_worker" "my_worker" {
+  account_id = var.account_id
+  name = "my-worker"
+}
+
+resource "cloudflare_worker_version" "my_worker_version" {
+  account_id = var.account_id
+  worker_id = cloudflare_worker.my_worker.id
+  bindings = [
+    {
+      type = "durable_object"
+      name = "my_durable_object"
+      class_name = "MyDurableObjectClass"
+    }
+  ]
+  migrations = {
+    new_sqlite_classes = [
+      "MyDurableObjectClass"
+    ]
+  }
+  # ...version props ommitted for brevity
+}
+
+resource "cloudflare_workers_deployment" "my_worker_deployment" {
+  # ...deployment props ommitted for brevity
+}
+```
+
+To make this succeed, you first have to comment out the `durable_object` binding block, apply the plan, uncomment it, comment out the `migrations` block, then apply again. This time the plan will succeed. This also applies to the API or SDKs. This is an example where it makes sense to just manage the `cloudflare_worker` and/or `cloudflare_workers_deployment` resources while using Wrangler for build and Version management.
