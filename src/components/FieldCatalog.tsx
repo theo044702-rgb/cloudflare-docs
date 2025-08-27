@@ -95,6 +95,11 @@ const FieldCatalog = ({ fields }: { fields: Fields }) => {
 					placeholder="Search fields"
 					value={filters.search}
 					onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+					onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+						if (e.key === "Escape") {
+							setFilters({ ...filters, search: "" });
+						}
+					}}
 				/>
 
 				<div className="mb-8! hidden md:block">
