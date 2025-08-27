@@ -255,6 +255,30 @@ const [product, module] = Astro.url.pathname.split("/").filter(Boolean);
 				}
 			}
 		});
+
+		document.addEventListener(
+			"keydown",
+			(keyboardEvent) => {
+				const target = keyboardEvent.target;
+
+				const isInput =
+					target instanceof EventTarget &&
+					(("tagName" in target &&
+						(target.tagName === "INPUT" ||
+							target.tagName === "TEXTAREA" ||
+							target.tagName === "SELECT")) ||
+						("isContentEditable" in target && target.isContentEditable));
+
+				if (keyboardEvent.key === "/" && !isInput) {
+					keyboardEvent.preventDefault();
+					keyboardEvent.stopPropagation();
+					searchInput.focus();
+				}
+			},
+			{
+				capture: true,
+			},
+		);
 	}
 
 	// Initialize when DOM is loaded
