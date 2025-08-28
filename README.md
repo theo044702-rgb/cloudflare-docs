@@ -2,6 +2,8 @@
 
 **[View the docs →](https://developers.cloudflare.com/)**
 
+<!-- Simple verification change for testing PR workflow -->
+
 ## Why Cloudflare Docs is open source
 
 Our documentation is open source so that we can stay connected with our community and quickly implement feedback. Whether you have opened an issue to provide feedback or contributed your own content, we thank you for helping us maintain quality documentation.
