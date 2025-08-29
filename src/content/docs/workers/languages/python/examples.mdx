@@ -18,7 +18,7 @@ from workers import WorkerEntrypoint, Response
 from urllib.parse import urlparse, parse_qs
 
 class Default(WorkerEntrypoint):
-    async def fetch(self, request, env):
+    async def fetch(self, request):
         # Parse the incoming request URL
         url = urlparse(request.url)
         # Parse the query parameters into a Python dictionary
@@ -89,7 +89,7 @@ def to_js(obj):
    return _to_js(obj, dict_converter=Object.fromEntries)
 
 class Default(WorkerEntrypoint):
-    async def fetch(self, request, env):
+    async def fetch(self, request):
         # Bindings are available on the 'env' parameter
         # https://developers.cloudflare.com/queues/
 
@@ -109,7 +109,7 @@ class Default(WorkerEntrypoint):
 from workers import WorkerEntrypoint, Response
 
 class Default(WorkerEntrypoint):
-    async def fetch(self, request, env):
+    async def fetch(self, request):
         results = await env.DB.prepare("PRAGMA table_list").run()
         # Return a JSON response
         return Response.json(results)

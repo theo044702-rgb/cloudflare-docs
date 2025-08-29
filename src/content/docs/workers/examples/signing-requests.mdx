@@ -387,9 +387,9 @@ encoder = TextEncoder.new()
 EXPIRY = 60
 
 class Default(WorkerEntrypoint):
-    async def fetch(self, request, env):
+    async def fetch(self, request):
 		# Get the secret key
-		secret_key_data = encoder.encode(env.SECRET_DATA if hasattr(env, "SECRET_DATA") else "my secret symmetric key")
+		secret_key_data = encoder.encode(self.env.SECRET_DATA if hasattr(self.env, "SECRET_DATA") else "my secret symmetric key")
 
 		# Import the secret as a CryptoKey for both 'sign' and 'verify' operations
 		key = await crypto.subtle.importKey(
